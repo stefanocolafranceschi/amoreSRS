@@ -1,0 +1,13 @@
+Running amoreSRS online
+amoreAgent -a SRS01 -s @aloneldc: -e 100 -c 10
+# option -e == nb events/cycle xxxx -c == nb cylce/run
+
+Running amoreSRS from a raw data file
+amoreAgent -a SRS01 -s /path/rawdatafile.raw -e 100 -c 10
+
+amore GUI display
+amore -d SRS -m SRSUI
+
+eventDump command
+eventDump @aloneldc: -f /tmp/data -n 1000
+# monitor 10000 events from LDC @aloneldc: and dump them into file /tmp/data

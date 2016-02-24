@@ -1,0 +1,28 @@
+# Back-Up Files #
+#################
+*~
+
+# Binary Files #
+################
+.DS_Store
+
+# Compiled source #
+###################
+*.o
+*.so
+
+# Figures #
+###########
+*.png
+results/*.png
+
+# Misc #
+########
+
+# ROOT Files #
+##############
+*.root
+
+# Text Files #
+##############
+
