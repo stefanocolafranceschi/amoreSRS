@@ -1,3 +1,9 @@
+Created by RD51 Collaboration
+->Kondo Gnanvo
+
+Contributors
+->Stefano Colafranceschi
+
 Running amoreSRS online
 amoreAgent -a SRS01 -s @aloneldc: -e 100 -c 10
 # option -e == nb events/cycle xxxx -c == nb cylce/run
