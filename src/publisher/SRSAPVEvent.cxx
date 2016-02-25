@@ -47,7 +47,7 @@ SRSAPVEvent::SRSAPVEvent(Int_t fec_no, Int_t fec_channel, Int_t apv_id, Int_t ze
     fAPVIndexOnPlane = mapping->GetAPVIndexOnPlane(apv_id);
     fAPVOrientation  = mapping->GetAPVOrientation(apv_id);
     fAPVstripmapping = mapping->GetAPVstripmapping(apv_id);
-
+    
     
     fPlane        = mapping->GetDetectorPlaneFromAPVID(apv_id);
     fDetector     = mapping->GetDetectorFromPlane(fPlane) ;
@@ -168,14 +168,13 @@ Int_t SRSAPVEvent::CMSStripMapping(Int_t chNo) {
 }
 
 //=====================================================
-Int_t SRSAPVEvent::CMSStripMapping1(Int_t chNo) {
-    chNo=1;
-    return chNo ;
-}
-
-//=====================================================
 Int_t SRSAPVEvent::CMSStripMapping2(Int_t chNo) {
-    chNo=2;
+    if((chNo%2)==1){
+        chNo= 63 - (chNo-1)/2+64;
+    }
+    else{
+        chNo =  (chNo/2);
+    }
     return chNo ;
 }
 //=====================================================
@@ -272,7 +271,7 @@ Int_t SRSAPVEvent::HMSStripMapping(Int_t chNo) {
 
 //=====================================================
 Int_t SRSAPVEvent::StripMapping(Int_t chNo) {
-
+    
     chNo = APVchannelCorrection(chNo) ;
     if (fDetectorType == "CMSGEM") {
         if (fAPVstripmapping==0) chNo = CMSStripMapping(chNo) ;
@@ -282,7 +281,7 @@ Int_t SRSAPVEvent::StripMapping(Int_t chNo) {
         if (fAPVstripmapping==4) chNo = CMSStripMapping4(chNo) ;
         //cout << "AA " << chNo << endl;
     }
-
+    
     else if (fDetectorType == "ZIGZAG")    chNo = ZigZagStripMapping(chNo) ;
     else if (fDetectorType == "NS2")       chNo = NS2StripMapping(chNo) ;
     else if (fDetectorType == "EICPROTO1") chNo = EICStripMapping(chNo) ;
@@ -290,7 +289,7 @@ Int_t SRSAPVEvent::StripMapping(Int_t chNo) {
     //else if (fDetectorType == "PRADGEM")   chNo = PRadStripsMapping(chNo) ;
     else                                   chNo = StandardMapping(chNo) ;
     //cout << "BB " << chNo << endl;
-
+    
     return chNo;
 }
 
@@ -743,7 +742,7 @@ list <SRSHit * >  SRSAPVEvent::ComputeListOfAPVHitsZS() {
 
 
 //========================================================================================================================
-void SRSAPVEvent::ComputeMeanTimeBinRawPedestalData() { 
+void SRSAPVEvent::ComputeMeanTimeBinRawPedestalData() {
     //  printf("SRSAPVEvent::ComputeMeanTimeBinRawPedestalData() \n") ;
     
     fPedSubFlag = kFALSE ;
@@ -767,7 +766,7 @@ void SRSAPVEvent::ComputeMeanTimeBinRawPedestalData() {
             
             if ((fReadoutBoard == "UV_ANGLE") &&  (fDetectorType == "EICPROTO1") ) {
                 if(stripNo < 64) meanTimeBinRawPedestalDataVect.push_back(rawdata - fCommonModeOffsets_even[timebin]) ;
-                else             meanTimeBinRawPedestalDataVect.push_back(rawdata - fCommonModeOffsets_odd[timebin]) ; 
+                else             meanTimeBinRawPedestalDataVect.push_back(rawdata - fCommonModeOffsets_odd[timebin]) ;
             }
             else {
                 meanTimeBinRawPedestalDataVect.push_back(rawdata - fCommonModeOffsets[timebin]) ;
