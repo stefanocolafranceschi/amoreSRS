@@ -5,7 +5,6 @@
  *  SRSAPVEvent                                                                 *
  *  SRS Module Class                                                            *
  *  Author: Kondo GNANVO 18/08/2010                                             *
- *  Modified by Stefano Colafranceschi on 22/08/2015 to include ZS rawfiles     *
  *******************************************************************************/
 
 #if !defined(__CINT__) || defined(__MAKECINT__)
@@ -40,10 +39,7 @@ public:
     vector<UInt_t> GetRawData32bits() {return fRawData32bits;}
     
     void ComputeRawData16bits();
-    void ComputeRawData16bitsZS();
-    
     vector<UInt_t> GetRawData16bits() {return fRawData16bits ;}
-    
     
     multimap<Int_t, Float_t> GetTimeBinMap() {return fapvTimeBinDataMap ;}
     
@@ -53,8 +49,6 @@ public:
     void ComputeMeanTimeBinRawPedestalData() ;
     vector<Float_t> GetRawPedestalData() {return fRawPedestalData ;}
     list <SRSHit * > ComputeListOfAPVHits() ;
-    list <SRSHit * > ComputeListOfAPVHitsZS() ;
-    
     
     Int_t APVchannelMapping(Int_t chNo) ;
     Int_t StandardMapping(Int_t) ;
@@ -107,7 +101,7 @@ public:
     
     void SetAPVOrientation(Int_t orient) {fAPVOrientation = orient;}
     Int_t GetAPVOrientation()            {return fAPVOrientation;}
-
+    
     void SetAPVstripmapping(Int_t stripmapping) {fAPVstripmapping = stripmapping;}
     Int_t GetAPVstripmapping()            {return fAPVstripmapping;}
 
@@ -160,6 +154,9 @@ private:
     
     vector<UInt_t> fRawData16bits, fRawData32bits;
     multimap<Int_t, Float_t> fapvTimeBinDataMap ;
+    //multimap<Int_t, vector<Float_t> > fapvTimeBinDataMapAdc ;
+    multimap<std::pair<Int_t, Float_t>, Int_t > fapvTimeBinDataMapAdc;
+    
     vector<Float_t> fPedestalData, fRawPedestalData, fPedestalOffsets, fRawPedestalOffsets,fPedestalNoises, fRawPedestalNoises, fMaskedChannels;
     
     vector<Float_t>  fPadDetectorMap, fCommonModeOffsets, fCommonModeOffsets_odd,   fCommonModeOffsets_even ;

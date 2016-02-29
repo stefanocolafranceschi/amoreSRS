@@ -7,7 +7,7 @@ SRSFECEventDecoder::SRSFECEventDecoder(Int_t nwords, UInt_t * buf, SRSEventBuild
     map <Int_t, Int_t> apvNoFromApvIDMap = mapping->GetAPVNoFromIDMap();
     
     Int_t size = apvNoFromApvIDMap.size() ;
-    //  printf("  SRSFECEventDecoder => List of size = %d\n", size) ;
+    printf("  SRSFECEventDecoder => List of size = %d\n", size) ;
     
     fBuf = buf;
     fNWords = nwords;
@@ -59,7 +59,7 @@ SRSFECEventDecoder::SRSFECEventDecoder(Int_t nwords, UInt_t * buf, SRSEventBuild
     while (current_offset < fNWords) {
         
         UInt_t rawdata = fBuf[current_offset] ;
-        //     if (((rawdata >> 8) & 0xffffff) == 0x414443) printf("  SRSFECEventDecoder => dataWord=0x%x \n", rawdata) ;
+        //     if (((rawdata >> 8) & 0xffffff) == 0x41505a) printf("  SRSFECEventDecoder => dataWord=0x%x \n", rawdata) ;
         //    printf("  SRSFECEventDecoder => dataWord=0x%x \n", rawdata) ;
         //=============================================================================//
         // end of event ==> break: add the data from the last sample here              //
@@ -101,7 +101,7 @@ SRSFECEventDecoder::SRSFECEventDecoder(Int_t nwords, UInt_t * buf, SRSEventBuild
         //=========================================================================================================//
         //         New packet (or frame) FEC channel data in the equipment                                         //
         //=========================================================================================================//
-        if (((rawdata >> 8) & 0xffffff) == 0x414443) {
+        if (((rawdata >> 8) & 0xffffff) == 0x41505a) {
             data32BitsVector.pop_back() ;
             if(!data32BitsVector.empty()) {
                 apvID = (fecID << 4) | adcChannel ;
@@ -191,14 +191,13 @@ SRSFECEventDecoder::SRSFECEventDecoder(Int_t nwords, UInt_t * buf, SRSPedestal *
     while (current_offset < fNWords) {
         
         UInt_t rawdata = fBuf[current_offset] ;
-        //     if (((rawdata >> 8) & 0xffffff) == 0x414443) printf("  SRSFECEventDecoder => dataWord=0x%x \n", rawdata) ;
+        //     if (((rawdata >> 8) & 0xffffff) == 0x41505a) printf("  SRSFECEventDecoder => dataWord=0x%x \n", rawdata) ;
         //    printf("  SRSFECEventDecoder => dataWord=0x%x \n", rawdata) ;
         //=============================================================================//
         // end of event ==> break: add the data from the last sample here              //
         //=============================================================================//
         
         if (rawdata == 0xfafafafa) {
-            cout << " fafafa " << endl;
             //===================================================================================================//
             // last word of the previous packet added for Filippo in DATE to count the eventNb x 16 UDP packets  //
             // We dont need it here, will just skip it We remove it from the vector of data                      //
@@ -235,7 +234,7 @@ SRSFECEventDecoder::SRSFECEventDecoder(Int_t nwords, UInt_t * buf, SRSPedestal *
         //=========================================================================================================//
         //         New packet (or frame) FEC channel data in the equipment                                         //
         //=========================================================================================================//
-        if (((rawdata >> 8) & 0xffffff) == 0x414443) {
+        if (((rawdata >> 8) & 0xffffff) == 0x41505a) {
             data32BitsVector.pop_back() ;
             if(!data32BitsVector.empty()) {
                 apvID = (fecID << 4) | adcChannel ;
@@ -268,6 +267,7 @@ SRSFECEventDecoder::SRSFECEventDecoder(Int_t nwords, UInt_t * buf, SRSPedestal *
         }
     }
 }
+
 
 
 //======================================================================================================================================
@@ -326,7 +326,7 @@ SRSFECEventDecoder::SRSFECEventDecoder(Int_t nwords, UInt_t * buf, SRSPedestal *
     while (current_offset < fNWords) {
         
         UInt_t rawdata = fBuf[current_offset] ;
-        //     if (((rawdata >> 8) & 0xffffff) == 0x414443) printf("  SRSFECEventDecoder => dataWord=0x%x \n", rawdata) ;
+        //     if (((rawdata >> 8) & 0xffffff) == 0x41505a) printf("  SRSFECEventDecoder => dataWord=0x%x \n", rawdata) ;
         //    printf("  SRSFECEventDecoder => dataWord=0x%x \n", rawdata) ;
         //=============================================================================//
         // end of event ==> break: add the data from the last sample here              //
@@ -368,29 +368,6 @@ SRSFECEventDecoder::SRSFECEventDecoder(Int_t nwords, UInt_t * buf, SRSPedestal *
         //=========================================================================================================//
         //         New packet (or frame) FEC channel data in the equipment                                         //
         //=========================================================================================================//
-        if (((rawdata >> 8) & 0xffffff) == 0x414443) {
-            data32BitsVector.pop_back() ;
-            if(!data32BitsVector.empty()) {
-                apvID = (fecID << 4) | adcChannel ;
-                BuildHits(data32BitsVector, fecID, adcChannel, ped, eventBuilder, zeroSupCut) ;
-            }
-            
-            currentAPVPacketHdr = rawdata  ;
-            adcChannel = currentAPVPacketHdr & 0xff ;
-            
-            //=== REINITIALISE EVERYTHING
-            if(adcChannel > 15) {
-                printf("  SRSFECEventDecoder => ERROR #### fecID=%d, ADC Channel=%d, apvID=%d, \n",fecID, adcChannel, apvID) ;
-                break ;
-            }
-            
-            data32BitsVector.clear() ;
-            fIsNewPacket = kTRUE ;
-            
-            current_offset++ ;
-            continue ;
-        }
-        
         if (((rawdata >> 8) & 0xffffff) == 0x41505a) {
             data32BitsVector.pop_back() ;
             if(!data32BitsVector.empty()) {
@@ -425,36 +402,24 @@ SRSFECEventDecoder::SRSFECEventDecoder(Int_t nwords, UInt_t * buf, SRSPedestal *
     }
 }
 
-
 //======================================================================================================================================
 void SRSFECEventDecoder::BuildHits(vector<UInt_t> data32bits, Int_t fec_id, Int_t adc_channel, SRSPedestal * ped, SRSEventBuilder * eventBuilder, Int_t zeroSupCut) {
     SRSMapping * mapping = SRSMapping::GetInstance();
-
     Int_t apvID = (fec_id << 4) | adc_channel ;
     if (find(fActiveFecChannels.begin(), fActiveFecChannels.end(), adc_channel) != fActiveFecChannels.end() ) {
         SRSAPVEvent * apvEvent = new SRSAPVEvent(fec_id, adc_channel, apvID, zeroSupCut, fEventNb, fPacketSize) ;
         apvEvent->SetHitMaxOrTotalADCs(eventBuilder->GetHitMaxOrTotalADCs()) ;
         vector <UInt_t >::const_iterator data_itr ;
-
         for(data_itr = data32bits.begin(); data_itr != data32bits.end(); ++data_itr) {
             UInt_t data = (* data_itr) ;
             apvEvent->Add32BitsRawData(data) ;
         }
         
         apvEvent->SetAllFlags(kTRUE, kTRUE) ;
-        if (zeroSupCut!=-999) apvEvent->SetPedestals(ped->GetAPVNoises(apvEvent->GetAPVID()), ped->GetAPVOffsets(apvEvent->GetAPVID()), ped->GetAPVMaskedChannels(apvEvent->GetAPVID())) ;
-
-        //    list <SRSHit*> listOfHits = apvEvent->ComputeListOfAPVHits(eventBuilder->GetHitMaxOrTotalADCs()) ;
-        list <SRSHit*> listOfHits;
-
-        if (zeroSupCut==-999) {
-            listOfHits = apvEvent->ComputeListOfAPVHitsZS() ;
-        }
-        else {
-            listOfHits = apvEvent->ComputeListOfAPVHits() ;
-        }
+        ////apvEvent->SetPedestals(ped->GetAPVNoises(apvEvent->GetAPVID()), ped->GetAPVOffsets(apvEvent->GetAPVID()), ped->GetAPVMaskedChannels(apvEvent->GetAPVID())) ;
+        //list <SRSHit*> listOfHits = apvEvent->ComputeListOfAPVHits(eventBuilder->GetHitMaxOrTotalADCs()) ;
+        list <SRSHit*> listOfHits = apvEvent->ComputeListOfAPVHits() ;
         list <SRSHit*>::const_iterator  hit_itr ;
-
         for (hit_itr = listOfHits.begin(); hit_itr != listOfHits.end(); ++hit_itr) {
             SRSHit * hit = * hit_itr ;
             eventBuilder->AddHitInDetectorPlane(hit)  ;
@@ -480,15 +445,9 @@ void SRSFECEventDecoder::BuildHitForPositionCorrection(vector<UInt_t> data32bits
         }
         
         apvEvent->SetAllFlags(kTRUE, kTRUE) ;
-        if (zeroSupCut!=-999) apvEvent->SetPedestals(ped->GetAPVNoises(apvEvent->GetAPVID()), ped->GetAPVOffsets(apvEvent->GetAPVID()), ped->GetAPVMaskedChannels(apvEvent->GetAPVID())) ;
-        //   list <SRSHit*> listOfHits = apvEvent->ComputeListOfAPVHits(eventBuilder->GetHitMaxOrTotalADCs()) ;
-        list <SRSHit*> listOfHits;
-        if (zeroSupCut==-999) {
-            listOfHits = apvEvent->ComputeListOfAPVHitsZS() ;
-        }
-        else {
-            listOfHits = apvEvent->ComputeListOfAPVHits() ;
-        }
+        ////apvEvent->SetPedestals(ped->GetAPVNoises(apvEvent->GetAPVID()), ped->GetAPVOffsets(apvEvent->GetAPVID()), ped->GetAPVMaskedChannels(apvEvent->GetAPVID())) ;
+        //list <SRSHit*> listOfHits = apvEvent->ComputeListOfAPVHits(eventBuilder->GetHitMaxOrTotalADCs()) ;
+        list <SRSHit*> listOfHits = apvEvent->ComputeListOfAPVHits() ;
         list <SRSHit*>::const_iterator  hit_itr ;
         for (hit_itr = listOfHits.begin(); hit_itr != listOfHits.end(); ++hit_itr) {
             SRSHit * hit = * hit_itr ;
@@ -504,7 +463,7 @@ void SRSFECEventDecoder::BuildHitForPositionCorrection(vector<UInt_t> data32bits
 void SRSFECEventDecoder::BuildRawAPVEvents(vector<UInt_t> data32bits, Int_t fec_id, Int_t adc_channel, SRSEventBuilder * eventBuilder) {
     SRSMapping * mapping = SRSMapping::GetInstance();
     Int_t apvID = (fec_id << 4) | adc_channel ;
-    //  printf("  SRSFECEventDecoder::BuildRawAPVEvent() => fecID=%d, ADC Channel=%d, apvID=%d, \n",fec_id, adc_channel, apvID) ;
+      printf("  SRSFECEventDecoder::BuildRawAPVEvent() => fecID=%d, ADC Channel=%d, apvID=%d, \n",fec_id, adc_channel, apvID) ;
     
     if (find(fActiveFecChannels.begin(), fActiveFecChannels.end(), adc_channel) != fActiveFecChannels.end() ) {
         SRSAPVEvent * apvEvent = new SRSAPVEvent(fec_id, adc_channel, apvID, 0, fEventNb, fPacketSize) ;
