@@ -5,5 +5,3 @@ if [ "$#" -eq 2 ]; then
 else
    echo "Usage ./runZS RUN_NUMBER EVENTS"
 fi
-NTS"
-fi
